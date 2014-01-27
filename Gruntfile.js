@@ -49,7 +49,7 @@ module.exports = function (grunt) {
                     '<%= config.app %>/core/services/*.js'
                 ],
                 livereload: true,
-                tasks: ['jshint', 'clean:devScripts', 'copy:devScripts']
+                tasks: ['jshint', 'clean:devScripts', 'copy:devScripts', 'cache-manifest']
             },
             css: {
                 files: [
@@ -475,6 +475,47 @@ module.exports = function (grunt) {
                 }
             }
         },
+        replace: {
+            development: {
+                options: {
+                    patterns: [{
+                        json: grunt.file.readJSON('./config/environments/development.json')
+                    }]
+                },
+                files: [{
+                    expand: true,
+                    flatten: true,
+                    src: ['./config/config.js'],
+                    dest: '<%= config.app %>/features/environment/'
+                }]
+            },
+            production: {
+                options: {
+                    patterns: [{
+                        json: grunt.file.readJSON('./config/environments/production.json')
+                    }]
+                },
+                files: [{
+                    expand: true,
+                    flatten: true,
+                    src: ['./config/config.js'],
+                    dest: '<%= config.app %>/features/environment/'
+                }]
+            },
+            staging: {
+                options: {
+                    patterns: [{
+                        json: grunt.file.readJSON('./config/environments/staging.json')
+                    }]
+                },
+                files: [{
+                    expand: true,
+                    flatten: true,
+                    src: ['./config/config.js'],
+                    dest: '<%= config.app %>/features/environment/'
+                }]
+            }
+        },
         markdown: {
             readme: {
                 options:{
@@ -576,6 +617,8 @@ module.exports = function (grunt) {
             'copy:bowerComponents',
             'copy:dev',
             'clean:cssBundle',
+            'cache-manifest',
+            'replace:development',
             'watch'
         ]);
     });
@@ -613,5 +656,15 @@ module.exports = function (grunt) {
         'jshint',
         'test',
         'build'
+    ]);
+
+    grunt.registerTask('production', [
+        'replace:production'
+    // Add further deploy related tasks here
+    ]);
+
+    grunt.registerTask('staging', [
+        'replace:staging'
+    // Add further deploy related tasks here
     ]);
 };
